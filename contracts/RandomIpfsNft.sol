@@ -6,6 +6,8 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "hardhat/console.sol";
+
 error RandomIpfsNft__NotEnoughMintFee();
 error RandomIpfsNft__WithdrawFailed();
 
@@ -55,8 +57,6 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
             revert RandomIpfsNft__NotEnoughMintFee();
         }
 
-        s_requestIdToSender[requestId] = msg.sender;
-
         requestId = i_vrfCoordinator.requestRandomWords(
             i_gasLane,
             i_subscriptionId,
@@ -64,6 +64,9 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
             i_callbackGasLimit,
             NUM_WORDS
         );
+        
+        s_requestIdToSender[requestId] = msg.sender;
+
         emit NftRequested(requestId, msg.sender);
     }
 
@@ -98,5 +101,9 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
 
     function getTokenCounter() public view returns(uint256) {
         return tokenCounter;
+    }
+
+    function getTokenUris(uint256 index) public view returns(string memory) {
+        return s_tokenUris[index];
     }
 }
